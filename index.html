@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qui veut gagner des millions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #001f3f, #0074d9);
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    .game-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #002b5c;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    }
+
+    .question {
+      font-size: 1.5rem;
+      margin: 20px 0;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .answer {
+      background: #0074d9;
+      padding: 15px;
+      border: none;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .answer:hover {
+      background: #0056b3;
+    }
+
+    .answer.correct {
+      background: #2ecc71;
+    }
+
+    .answer.wrong {
+      background: #e74c3c;
+    }
+
+    .progress {
+      margin: 20px 0;
+      font-size: 1.2rem;
+    }
+
+    .score {
+      margin-top: 20px;
+      font-size: 1.5rem;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #0074d9;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Qui veut gagner des millions</h1>
+  <div class="game-container">
+    <div id="question-container">
+      <p class="progress">Question <span id="question-number">1</span> sur 10</p>
+      <div class="question" id="question">Question ici...</div>
+      <div class="answers" id="answers"></div>
+      <p class="score">Score : <span id="score">0</span> €</p>
+    </div>
+    <button id="next-button" style="display: none;">Question Suivante</button>
+  </div>
+
+  <script>
+    // Questions et réponses
+    const questions = [
+      {
+        question: "Quelle est la capitale de la France ?",
+        answers: ["Paris", "Berlin", "Madrid", "Rome"],
+        correct: 0,
+      },
+      {
+        question: "Combien font 5 x 5 ?",
+        answers: ["20", "25", "30", "35"],
+        correct: 1,
+      },
+      {
+        question: "Qui a écrit 'Les Misérables' ?",
+        answers: ["Victor Hugo", "Balzac", "Zola", "Molière"],
+        correct: 0,
+      },
+      {
+        question: "Quel est le plus grand océan ?",
+        answers: ["Atlantique", "Arctique", "Pacifique", "Indien"],
+        correct: 2,
+      },
+      {
+        question: "Quelle est la planète la plus proche du Soleil ?",
+        answers: ["Mercure", "Venus", "Mars", "Terre"],
+        correct: 0,
+      },
+      {
+        question: "Quelle est la couleur du sang des homards ?",
+        answers: ["Bleu", "Rouge", "Vert", "Jaune"],
+        correct: 0,
+      },
+      {
+        question: "En quelle année a eu lieu le premier pas sur la Lune ?",
+        answers: ["1965", "1969", "1972", "1980"],
+        correct: 1,
+      },
+      {
+        question: "Quel est le symbole chimique de l'eau ?",
+        answers: ["O2", "CO2", "H2O", "H2"],
+        correct: 2,
+      },
+      {
+        question: "Quel est le pays d'origine des sushis ?",
+        answers: ["Chine", "Corée", "Japon", "Thaïlande"],
+        correct: 2,
+      },
+      {
+        question: "Combien de côtés a un hexagone ?",
+        answers: ["4", "5", "6", "7"],
+        correct: 2,
+      },
+    ];
+
+    // Variables globales
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    // Références DOM
+    const questionNumberElement = document.getElementById('question-number');
+    const questionElement = document.getElementById('question');
+    const answersElement = document.getElementById('answers');
+    const scoreElement = document.getElementById('score');
+    const nextButton = document.getElementById('next-button');
+
+    // Affiche la question actuelle
+    function showQuestion() {
+      const currentQuestion = questions[currentQuestionIndex];
+      questionNumberElement.textContent = currentQuestionIndex + 1;
+      questionElement.textContent = currentQuestion.question;
+      answersElement.innerHTML = '';
+      currentQuestion.answers.forEach((answer, index) => {
+        const button = document.createElement('button');
+        button.classList.add('answer');
+        button.textContent = answer;
+        button.onclick = () => selectAnswer(index);
+        answersElement.appendChild(button);
+      });
+      nextButton.style.display = 'none';
+    }
+
+    // Sélectionne une réponse
+    function selectAnswer(index) {
+      const currentQuestion = questions[currentQuestionIndex];
+      const buttons = document.querySelectorAll('.answer');
+      buttons.forEach((button, i) => {
+        button.classList.add(i === currentQuestion.correct ? 'correct' : 'wrong');
+        button.disabled = true;
+      });
+      if (index === currentQuestion.correct) {
+        score += 1000;
+        scoreElement.textContent = score.toLocaleString();
+      }
+      nextButton.style.display = 'block';
+    }
+
+    // Passe à la question suivante
+    function nextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        showQuestion();
+      } else {
+        showEndScreen();
+      }
+    }
+
+    // Affiche l'écran de fin
+    function showEndScreen() {
+      questionElement.textContent = "Félicitations, vous avez terminé !";
+      answersElement.innerHTML = '';
+      nextButton.style.display = 'none';
+    }
+
+    // Initialise le jeu
+    function startGame() {
+      currentQuestionIndex = 0;
+      score = 0;
+      scoreElement.textContent = score.toLocaleString();
+      showQuestion();
+    }
+
+    // Événements
+    nextButton.addEventListener('click', nextQuestion);
+
+    // Démarrer le jeu
+    startGame();
+  </script>
+</body>
+</html>
